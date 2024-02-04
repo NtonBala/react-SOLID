@@ -13,19 +13,25 @@ const loadVideoDetails = (id: string): Promise<VideoDetails> => {
         resolve({
           previewUrl: "https://i.ytimg.com/vi/BlNwQdqdRig/hqdefault.jpg",
           title: "Functional TypeScript: curry function",
-          author: "@AleksandrSugak",
+          author: "@NtonBala",
         }),
       500,
     );
   });
 };
 
-const VideoPreview = ({ videoId }: { videoId: string }) => {
+const useVideoDetails = (videoId: string) => {
   const [videoDetails, setVideoDetails] = useState<VideoDetails>();
 
   useEffect(() => {
     loadVideoDetails(videoId).then((vd) => setVideoDetails(vd));
   }, [videoId]);
+
+  return videoDetails;
+};
+
+const VideoPreview = ({ videoId }: { videoId: string }) => {
+  const videoDetails = useVideoDetails(videoId);
 
   return videoDetails ? (
     <div style={{ display: "flex" }}>
