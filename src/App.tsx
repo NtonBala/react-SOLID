@@ -30,24 +30,40 @@ const useVideoDetails = (videoId: string) => {
   return videoDetails;
 };
 
+const VideoPreviewImage = ({
+  videoDetails,
+}: {
+  videoDetails: VideoDetails;
+}) => (
+  <img
+    style={{ width: "200px", borderRadius: "10px", border: "1px solid" }}
+    src={videoDetails.previewUrl}
+    alt="video preview"
+  />
+);
+
+const VideoDescription = ({ videoDetails }: { videoDetails: VideoDetails }) => (
+  <>
+    <div style={{ fontWeight: "bold" }}>{videoDetails.title}</div>
+    <div style={{ color: "#808080" }}>{videoDetails.author}</div>
+  </>
+);
+
+const Loader = () => <span>loading...</span>;
+
 const VideoPreview = ({ videoId }: { videoId: string }) => {
   const videoDetails = useVideoDetails(videoId);
 
   return videoDetails ? (
     <div style={{ display: "flex" }}>
-      <img
-        style={{ width: "200px", borderRadius: "10px", border: "1px solid" }}
-        src={videoDetails.previewUrl}
-        alt="video preview"
-      />
+      <VideoPreviewImage videoDetails={videoDetails} />
 
       <div style={{ paddingLeft: "10px" }}>
-        <div style={{ fontWeight: "bold" }}>{videoDetails.title}</div>
-        <div style={{ color: "#808080" }}>{videoDetails.author}</div>
+        <VideoDescription videoDetails={videoDetails} />
       </div>
     </div>
   ) : (
-    <span>loading...</span>
+    <Loader />
   );
 };
 
