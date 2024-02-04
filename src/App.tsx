@@ -6,37 +6,22 @@ type VideoDetails = {
   author: string;
 };
 
-type StreamDetails = VideoDetails & {
-  watching: number;
-};
-
-const loadVideoDetails = (
-  id: string,
-): Promise<VideoDetails | StreamDetails> => {
+const loadVideoDetails = (id: string): Promise<VideoDetails> => {
   return new Promise((resolve): void => {
     setTimeout(
       () =>
-        id.includes("stream")
-          ? resolve({
-              previewUrl: "https://i.ytimg.com/vi/gYszgvLdxpI/hqdefault.jpg",
-              title: "Do we really need SOLID in front-end?",
-              author: "@NtonBala",
-              watching: 1200,
-            })
-          : resolve({
-              previewUrl: "https://i.ytimg.com/vi/BlNwQdqdRig/hqdefault.jpg",
-              title: "Functional TypeScript: curry function",
-              author: "@NtonBala",
-            }),
+        resolve({
+          previewUrl: "https://i.ytimg.com/vi/BlNwQdqdRig/hqdefault.jpg",
+          title: "Functional TypeScript: curry function",
+          author: "@AleksandrSugak",
+        }),
       500,
     );
   });
 };
 
 const VideoPreview = ({ videoId }: { videoId: string }) => {
-  const [videoDetails, setVideoDetails] = useState<
-    VideoDetails | StreamDetails
-  >();
+  const [videoDetails, setVideoDetails] = useState<VideoDetails>();
 
   useEffect(() => {
     loadVideoDetails(videoId).then((vd) => setVideoDetails(vd));
@@ -53,17 +38,6 @@ const VideoPreview = ({ videoId }: { videoId: string }) => {
       <div style={{ paddingLeft: "10px" }}>
         <div style={{ fontWeight: "bold" }}>{videoDetails.title}</div>
         <div style={{ color: "#808080" }}>{videoDetails.author}</div>
-
-        {"watching" in videoDetails && (
-          <>
-            <div style={{ color: "#808080" }}>{videoDetails.watching}</div>
-            <span
-              style={{ color: "white", backgroundColor: "red", padding: "3px" }}
-            >
-              live
-            </span>
-          </>
-        )}
       </div>
     </div>
   ) : (
@@ -75,8 +49,6 @@ function App() {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <VideoPreview videoId="testVideo" />
-      <br />
-      <VideoPreview videoId="teststream" />
     </div>
   );
 }
