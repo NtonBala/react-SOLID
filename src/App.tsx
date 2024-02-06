@@ -51,6 +51,13 @@ const VideoDescription = ({ videoDetails }: { videoDetails: VideoDetails }) => (
 
 const Loader = () => <span>loading...</span>;
 
+// Pass things VideoPreview component uses and implementation details as parameters
+// Things component uses:
+// 1. videoDetails data
+// Implementation details:
+// 1. useVideoDetails hook
+// 2. component to be returned (actual content)
+
 const VideoPreview = ({ videoId }: { videoId: string }) => {
   const videoDetails = useVideoDetails(videoId);
 
