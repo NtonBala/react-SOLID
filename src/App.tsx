@@ -74,20 +74,30 @@ const Loader = () => <span>loading...</span>;
 // 1. useVideoDetails hook
 // 2. component to be returned (actual content)
 
-const VideoPreview = ({ videoId }: { videoId: string }) => {
-  const videoDetails = useVideoDetails(videoId);
+const VideoPreview = ({
+  videoId,
+  useVideoPreviewData,
+  renderContent,
+}: {
+  videoId: string;
+  useVideoPreviewData: (videoId: string) => VideoDetails | undefined;
+  renderContent: (videoDetails: VideoDetails) => JSX.Element;
+}) => {
+  const videoDetails = useVideoPreviewData(videoId);
 
-  return videoDetails ? (
-    <VideoPreviewContent videoDetails={videoDetails} />
-  ) : (
-    <Loader />
-  );
+  return videoDetails ? renderContent(videoDetails) : <Loader />;
 };
 
 function App() {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <VideoPreview videoId="testVideo" />
+      <VideoPreview
+        videoId="testVideo"
+        useVideoPreviewData={useVideoDetails}
+        renderContent={(videoDetails: VideoDetails) => (
+          <VideoPreviewContent videoDetails={videoDetails} />
+        )}
+      />
     </div>
   );
 }
