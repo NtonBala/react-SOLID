@@ -49,6 +49,22 @@ const VideoDescription = ({ videoDetails }: { videoDetails: VideoDetails }) => (
   </>
 );
 
+const VideoPreviewContent = ({
+  videoDetails,
+}: {
+  videoDetails: VideoDetails;
+}) => {
+  return (
+    <div style={{ display: "flex" }}>
+      <VideoPreviewImage videoDetails={videoDetails} />
+
+      <div style={{ paddingLeft: "10px" }}>
+        <VideoDescription videoDetails={videoDetails} />
+      </div>
+    </div>
+  );
+};
+
 const Loader = () => <span>loading...</span>;
 
 // Pass things VideoPreview component uses and implementation details as parameters
@@ -62,13 +78,7 @@ const VideoPreview = ({ videoId }: { videoId: string }) => {
   const videoDetails = useVideoDetails(videoId);
 
   return videoDetails ? (
-    <div style={{ display: "flex" }}>
-      <VideoPreviewImage videoDetails={videoDetails} />
-
-      <div style={{ paddingLeft: "10px" }}>
-        <VideoDescription videoDetails={videoDetails} />
-      </div>
-    </div>
+    <VideoPreviewContent videoDetails={videoDetails} />
   ) : (
     <Loader />
   );
