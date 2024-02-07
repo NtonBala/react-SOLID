@@ -51,8 +51,16 @@ const VideoDescription = ({ videoDetails }: { videoDetails: VideoDetails }) => (
 
 const Loader = () => <span>loading...</span>;
 
-const VideoPreview = ({ videoId }: { videoId: string }) => {
-  const videoDetails = useVideoDetails(videoId);
+type VideoPreviewProps = {
+  videoId: string;
+  videoDetailsGetter?: typeof useVideoDetails;
+};
+
+const VideoPreview = ({
+  videoId,
+  videoDetailsGetter = useVideoDetails,
+}: VideoPreviewProps) => {
+  const videoDetails = videoDetailsGetter(videoId);
 
   return videoDetails ? (
     <div style={{ display: "flex" }}>
