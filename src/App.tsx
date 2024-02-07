@@ -49,12 +49,12 @@ const VideoDescription = ({ videoDetails }: { videoDetails: VideoDetails }) => (
   </>
 );
 
-const VideoPreviewContent = ({
-  videoDetails,
-}: {
-  videoDetails: VideoDetails;
-}) => {
-  return (
+const Loader = () => <span>loading...</span>;
+
+const VideoPreview = ({ videoId }: { videoId: string }) => {
+  const videoDetails = useVideoDetails(videoId);
+
+  return videoDetails ? (
     <div style={{ display: "flex" }}>
       <VideoPreviewImage videoDetails={videoDetails} />
 
@@ -62,42 +62,15 @@ const VideoPreviewContent = ({
         <VideoDescription videoDetails={videoDetails} />
       </div>
     </div>
+  ) : (
+    <Loader />
   );
-};
-
-const Loader = () => <span>loading...</span>;
-
-// Pass things VideoPreview component uses and implementation details as parameters
-// Things component uses:
-// 1. videoDetails data
-// Implementation details:
-// 1. useVideoDetails hook
-// 2. component to be returned (actual content)
-
-const VideoPreview = ({
-  videoId,
-  useVideoPreviewData,
-  renderContent,
-}: {
-  videoId: string;
-  useVideoPreviewData: (videoId: string) => VideoDetails | undefined;
-  renderContent: (videoDetails: VideoDetails) => JSX.Element;
-}) => {
-  const videoDetails = useVideoPreviewData(videoId);
-
-  return videoDetails ? renderContent(videoDetails) : <Loader />;
 };
 
 function App() {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
-      <VideoPreview
-        videoId="testVideo"
-        useVideoPreviewData={useVideoDetails}
-        renderContent={(videoDetails: VideoDetails) => (
-          <VideoPreviewContent videoDetails={videoDetails} />
-        )}
-      />
+      <VideoPreview videoId="testVideo" />
     </div>
   );
 }
