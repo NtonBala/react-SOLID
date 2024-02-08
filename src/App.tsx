@@ -54,34 +54,34 @@ const Loader = () => <span>loading...</span>;
 type VideoPreviewProps = {
   videoId: string;
   videoDetailsGetter?: typeof useVideoDetails;
-  ImagePreviewComponent?: React.FunctionComponent<{
-    videoDetails: VideoDetails;
-  }>;
-  DescriptionComponent?: React.FunctionComponent<{
-    videoDetails: VideoDetails;
-  }>;
-  LoaderComponent?: React.FunctionComponent<{}>;
+  renderImagePreview?: (videoDetails: VideoDetails) => React.ReactElement;
+  renderDescription?: (VideoDetails: VideoDetails) => React.ReactElement;
+  renderLoader?: () => React.ReactElement;
 };
 
 const VideoPreview = ({
   videoId,
   videoDetailsGetter = useVideoDetails,
-  ImagePreviewComponent = VideoPreviewImage,
-  DescriptionComponent = VideoDescription,
-  LoaderComponent = Loader,
+  renderImagePreview,
+  renderDescription,
+  renderLoader,
 }: VideoPreviewProps) => {
   const videoDetails = videoDetailsGetter(videoId);
 
   return videoDetails ? (
     <div style={{ display: "flex" }}>
-      <ImagePreviewComponent videoDetails={videoDetails} />
+      {renderImagePreview?.(videoDetails) || (
+        <VideoPreviewImage videoDetails={videoDetails} />
+      )}
 
       <div style={{ paddingLeft: "10px" }}>
-        <DescriptionComponent videoDetails={videoDetails} />
+        {renderDescription?.(videoDetails) || (
+          <VideoDescription videoDetails={videoDetails} />
+        )}
       </div>
     </div>
   ) : (
-    <LoaderComponent />
+    renderLoader?.() || <Loader />
   );
 };
 
