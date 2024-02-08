@@ -60,6 +60,7 @@ type VideoPreviewProps = {
   DescriptionComponent?: React.FunctionComponent<{
     videoDetails: VideoDetails;
   }>;
+  LoaderComponent?: React.FunctionComponent<{}>;
 };
 
 const VideoPreview = ({
@@ -67,6 +68,7 @@ const VideoPreview = ({
   videoDetailsGetter = useVideoDetails,
   ImagePreviewComponent = VideoPreviewImage,
   DescriptionComponent = VideoDescription,
+  LoaderComponent = Loader,
 }: VideoPreviewProps) => {
   const videoDetails = videoDetailsGetter(videoId);
 
@@ -79,7 +81,7 @@ const VideoPreview = ({
       </div>
     </div>
   ) : (
-    <Loader />
+    <LoaderComponent />
   );
 };
 
