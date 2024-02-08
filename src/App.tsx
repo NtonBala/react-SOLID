@@ -54,17 +54,21 @@ const Loader = () => <span>loading...</span>;
 type VideoPreviewProps = {
   videoId: string;
   videoDetailsGetter?: typeof useVideoDetails;
+  ImagePreviewComponent?: React.FunctionComponent<{
+    videoDetails: VideoDetails;
+  }>;
 };
 
 const VideoPreview = ({
   videoId,
   videoDetailsGetter = useVideoDetails,
+  ImagePreviewComponent = VideoPreviewImage,
 }: VideoPreviewProps) => {
   const videoDetails = videoDetailsGetter(videoId);
 
   return videoDetails ? (
     <div style={{ display: "flex" }}>
-      <VideoPreviewImage videoDetails={videoDetails} />
+      <ImagePreviewComponent videoDetails={videoDetails} />
 
       <div style={{ paddingLeft: "10px" }}>
         <VideoDescription videoDetails={videoDetails} />
