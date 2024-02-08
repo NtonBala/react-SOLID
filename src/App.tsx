@@ -67,21 +67,23 @@ const VideoPreview = ({
   renderLoader,
 }: VideoPreviewProps) => {
   const videoDetails = videoDetailsGetter(videoId);
+  const loaderElement = renderLoader?.() || <Loader />;
 
-  return videoDetails ? (
+  if (!videoDetails) return loaderElement;
+
+  const imagePreviewElement = renderImagePreview?.(videoDetails) || (
+    <VideoPreviewImage videoDetails={videoDetails} />
+  );
+  const descriptionElement = renderDescription?.(videoDetails) || (
+    <VideoDescription videoDetails={videoDetails} />
+  );
+
+  return (
     <div style={{ display: "flex" }}>
-      {renderImagePreview?.(videoDetails) || (
-        <VideoPreviewImage videoDetails={videoDetails} />
-      )}
+      {imagePreviewElement}
 
-      <div style={{ paddingLeft: "10px" }}>
-        {renderDescription?.(videoDetails) || (
-          <VideoDescription videoDetails={videoDetails} />
-        )}
-      </div>
+      <div style={{ paddingLeft: "10px" }}>{descriptionElement}</div>
     </div>
-  ) : (
-    renderLoader?.() || <Loader />
   );
 };
 
