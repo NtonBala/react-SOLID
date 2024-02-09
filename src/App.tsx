@@ -41,6 +41,9 @@ const VideoPreviewImage = ({
     alt="video preview"
   />
 );
+const renderVideoPreviewImage = (videoDetails: VideoDetails) => (
+  <VideoPreviewImage videoDetails={videoDetails} />
+);
 
 const VideoDescription = ({ videoDetails }: { videoDetails: VideoDetails }) => (
   <>
@@ -48,8 +51,12 @@ const VideoDescription = ({ videoDetails }: { videoDetails: VideoDetails }) => (
     <div style={{ color: "#808080" }}>{videoDetails.author}</div>
   </>
 );
+const renderVideoDescription = (videoDetails: VideoDetails) => (
+  <VideoDescription videoDetails={videoDetails} />
+);
 
 const Loader = () => <span>loading...</span>;
+const renderLoader = () => <Loader />;
 
 type VideoPreviewProps = {
   videoId: string;
@@ -62,28 +69,22 @@ type VideoPreviewProps = {
 const VideoPreview = ({
   videoId,
   videoDetailsGetter = useVideoDetails,
-  renderImagePreview,
-  renderDescription,
-  renderLoader,
+  renderImagePreview = renderVideoPreviewImage,
+  renderDescription = renderVideoDescription,
+  renderLoader: renderLoaderProp = renderLoader,
 }: VideoPreviewProps) => {
   const videoDetails = videoDetailsGetter(videoId);
-  const loaderElement = renderLoader?.() || <Loader />;
 
-  if (!videoDetails) return loaderElement;
-
-  const imagePreviewElement = renderImagePreview?.(videoDetails) || (
-    <VideoPreviewImage videoDetails={videoDetails} />
-  );
-  const descriptionElement = renderDescription?.(videoDetails) || (
-    <VideoDescription videoDetails={videoDetails} />
-  );
-
-  return (
+  return videoDetails ? (
     <div style={{ display: "flex" }}>
-      {imagePreviewElement}
+      {renderImagePreview(videoDetails)}
 
-      <div style={{ paddingLeft: "10px" }}>{descriptionElement}</div>
+      <div style={{ paddingLeft: "10px" }}>
+        {renderDescription(videoDetails)}
+      </div>
     </div>
+  ) : (
+    renderLoaderProp()
   );
 };
 
