@@ -1,4 +1,67 @@
-import { useState, useEffect } from "react";
+import {
+  useState,
+  useEffect,
+  useCallback,
+  createContext,
+  useContext,
+} from "react";
+
+type VideoPreviewContextState = {
+  videoDetails: null | VideoDetails;
+};
+
+const getDefaultVideoPreviewContextState = () => ({
+  videoDetails: null,
+});
+
+type VideoPreviewContextStore = {
+  state: VideoPreviewContextState;
+  setVideoDetails: (videoDetails: VideoDetails) => void;
+};
+
+const useVideoPreviewContextStore = (): VideoPreviewContextStore => {
+  const [state, setState] = useState<VideoPreviewContextState>(
+    getDefaultVideoPreviewContextState(),
+  );
+
+  const setVideoDetails = useCallback((videoDetails: VideoDetails): void => {
+    setState((prevState) => ({ ...prevState, videoDetails }));
+  }, []);
+
+  return {
+    state,
+    setVideoDetails,
+  };
+};
+
+const VideoPreviewContext = createContext<VideoPreviewContextStore | undefined>(
+  undefined,
+);
+
+function useDefinedContext<T>(contextProp: React.Context<T | undefined>) {
+  const context = useContext(contextProp);
+
+  if (!context) {
+    throw new Error(
+      "Cannot use the context without providing it by ContextProvider",
+    );
+  }
+
+  return context;
+}
+
+const useVideoPreviewContext = () =>
+  useDefinedContext<VideoPreviewContextStore>(VideoPreviewContext);
+
+const VideoPreviewContextProvider = ({ children }: React.PropsWithChildren) => {
+  const store = useVideoPreviewContextStore();
+
+  return (
+    <VideoPreviewContext.Provider value={store}>
+      {children}
+    </VideoPreviewContext.Provider>
+  );
+};
 
 type VideoDetails = {
   previewUrl: string;
@@ -20,71 +83,90 @@ const loadVideoDetails = (id: string): Promise<VideoDetails> => {
   });
 };
 
-const useVideoDetails = (videoId: string) => {
-  const [videoDetails, setVideoDetails] = useState<VideoDetails>();
+const useVideoDetailsEffect = (
+  videoId: string,
+  loadVideoDetailsProp: typeof loadVideoDetails,
+) => {
+  const { setVideoDetails } = useVideoPreviewContext();
 
   useEffect(() => {
-    loadVideoDetails(videoId).then((vd) => setVideoDetails(vd));
-  }, [videoId]);
-
-  return videoDetails;
+    loadVideoDetailsProp(videoId).then((vd) => setVideoDetails(vd));
+  }, [videoId, setVideoDetails, loadVideoDetailsProp]);
 };
 
-const VideoPreviewImage = ({
-  videoDetails,
-}: {
-  videoDetails: VideoDetails;
-}) => (
-  <img
-    style={{ width: "200px", borderRadius: "10px", border: "1px solid" }}
-    src={videoDetails.previewUrl}
-    alt="video preview"
-  />
-);
-const renderVideoPreviewImage = (videoDetails: VideoDetails) => (
-  <VideoPreviewImage videoDetails={videoDetails} />
-);
+const VideoPreviewImage = () => {
+  const {
+    state: { videoDetails },
+  } = useVideoPreviewContext();
 
-const VideoDescription = ({ videoDetails }: { videoDetails: VideoDetails }) => (
-  <>
-    <div style={{ fontWeight: "bold" }}>{videoDetails.title}</div>
-    <div style={{ color: "#808080" }}>{videoDetails.author}</div>
-  </>
-);
-const renderVideoDescription = (videoDetails: VideoDetails) => (
-  <VideoDescription videoDetails={videoDetails} />
-);
+  if (!videoDetails) return null;
+
+  return (
+    <img
+      style={{ width: "200px", borderRadius: "10px", border: "1px solid" }}
+      src={videoDetails.previewUrl}
+      alt="video preview"
+    />
+  );
+};
+
+const VideoDescription = () => {
+  const {
+    state: { videoDetails },
+  } = useVideoPreviewContext();
+
+  if (!videoDetails) return null;
+
+  return (
+    <>
+      <div style={{ fontWeight: "bold" }}>{videoDetails.title}</div>
+      <div style={{ color: "#808080" }}>{videoDetails.author}</div>
+    </>
+  );
+};
 
 const Loader = () => <span>loading...</span>;
-const renderLoader = () => <Loader />;
 
 type VideoPreviewProps = {
   videoId: string;
-  videoDetailsGetter?: typeof useVideoDetails;
-  renderImagePreview?: (videoDetails: VideoDetails) => React.ReactElement;
-  renderDescription?: (VideoDetails: VideoDetails) => React.ReactElement;
-  renderLoader?: () => React.ReactElement;
+  videoDetailsGetter?: typeof loadVideoDetails;
+  imagePreviewElement?: React.ReactElement;
+  descriptionElement?: React.ReactElement;
+  loaderElement?: React.ReactElement;
 };
 
-const VideoPreview = ({
+const VideoPreviewContent = ({
   videoId,
-  videoDetailsGetter = useVideoDetails,
-  renderImagePreview = renderVideoPreviewImage,
-  renderDescription = renderVideoDescription,
-  renderLoader: renderLoaderProp = renderLoader,
+  videoDetailsGetter = loadVideoDetails,
+  imagePreviewElement = <VideoPreviewImage />,
+  descriptionElement = <VideoDescription />,
+  loaderElement = <Loader />,
 }: VideoPreviewProps) => {
-  const videoDetails = videoDetailsGetter(videoId);
+  const {
+    state: { videoDetails },
+  } = useVideoPreviewContext();
+
+  useVideoDetailsEffect(videoId, videoDetailsGetter);
 
   return videoDetails ? (
     <div style={{ display: "flex" }}>
-      {renderImagePreview(videoDetails)}
+      {imagePreviewElement}
 
-      <div style={{ paddingLeft: "10px" }}>
-        {renderDescription(videoDetails)}
-      </div>
+      <div style={{ paddingLeft: "10px" }}>{descriptionElement}</div>
     </div>
   ) : (
-    renderLoaderProp()
+    loaderElement
+  );
+};
+
+const VideoPreview = ({
+  children,
+  ...props
+}: React.PropsWithChildren<VideoPreviewProps>) => {
+  return (
+    <VideoPreviewContextProvider>
+      <VideoPreviewContent {...props} />
+    </VideoPreviewContextProvider>
   );
 };
 
