@@ -76,50 +76,67 @@ const VideoDescription = ({ videoDetails }: { videoDetails: VideoDetails }) => (
   </>
 );
 
+const StreamDescription = ({
+  videoDetails,
+}: {
+  videoDetails: StreamDetails;
+}) => (
+  <>
+    <VideoDescription videoDetails={videoDetails} />
+    <div style={{ color: "#808080" }}>{videoDetails.watching} watching</div>
+    <span style={{ color: "white", backgroundColor: "red", padding: "3px" }}>
+      live
+    </span>
+  </>
+);
+
 const Loader = () => <span>loading...</span>;
 
-type VideoPreviewProps = {
+type VideoPreviewProps<T extends VideoDetails> = {
   videoId: string;
-  videoDetailsGetter?: typeof useVideoDetails;
   ImagePreviewComponent?: React.FunctionComponent<{
-    videoDetails: VideoDetails;
+    videoDetails: T;
   }>;
   DescriptionComponent?: React.FunctionComponent<{
-    videoDetails: VideoDetails;
+    videoDetails: T;
   }>;
   LoaderComponent?: React.FunctionComponent<{}>;
 };
 
-const VideoPreview = ({
-  videoId,
-  videoDetailsGetter = useVideoDetails,
-  ImagePreviewComponent = VideoPreviewImage,
-  DescriptionComponent = VideoDescription,
-  LoaderComponent = Loader,
-}: VideoPreviewProps) => {
-  const videoDetails = videoDetailsGetter(videoId);
+const getVideoPreview =
+  <T extends VideoDetails>(videoDetailsGetter: (id: string) => T | undefined) =>
+  ({
+    videoId,
+    ImagePreviewComponent = VideoPreviewImage,
+    DescriptionComponent = VideoDescription,
+    LoaderComponent = Loader,
+  }: VideoPreviewProps<T>) => {
+    const videoDetails = videoDetailsGetter(videoId);
 
-  return videoDetails ? (
-    <div style={{ display: "flex" }}>
-      <ImagePreviewComponent videoDetails={videoDetails} />
+    return videoDetails ? (
+      <div style={{ display: "flex" }}>
+        <ImagePreviewComponent videoDetails={videoDetails} />
 
-      <div style={{ paddingLeft: "10px" }}>
-        <DescriptionComponent videoDetails={videoDetails} />
+        <div style={{ paddingLeft: "10px" }}>
+          <DescriptionComponent videoDetails={videoDetails} />
+        </div>
       </div>
-    </div>
-  ) : (
-    <LoaderComponent />
-  );
-};
+    ) : (
+      <LoaderComponent />
+    );
+  };
+
+const VideoPreview = getVideoPreview(useVideoDetails);
+const StreamPreview = getVideoPreview(useStreamDetails);
 
 function App() {
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
       <VideoPreview videoId="testVideo" />
       <br />
-      <VideoPreview
+      <StreamPreview
         videoId="testStream"
-        videoDetailsGetter={useStreamDetails}
+        DescriptionComponent={StreamDescription}
       />
     </div>
   );
