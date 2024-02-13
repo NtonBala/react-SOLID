@@ -57,7 +57,9 @@ const useStreamDetails = (videoId: string) => {
   return videoDetails;
 };
 
-const VideoPreviewImage = ({ previewUrl }: { previewUrl: string }) => (
+type VideoPreviewImageProps = Pick<VideoDetails, "previewUrl">;
+
+const VideoPreviewImage = ({ previewUrl }: VideoPreviewImageProps) => (
   <img
     style={{ width: "200px", borderRadius: "10px", border: "1px solid" }}
     src={previewUrl}
@@ -90,9 +92,9 @@ const Loader = () => <span>loading...</span>;
 
 type VideoPreviewProps<T extends VideoDetails> = {
   videoId: string;
-  ImagePreviewComponent?: React.FunctionComponent<{
-    previewUrl: string;
-  }>;
+  ImagePreviewComponent?: React.FunctionComponent<
+    Pick<VideoDetails, "previewUrl">
+  >;
   DescriptionComponent?: React.FunctionComponent<{
     videoDetails: T;
   }>;
