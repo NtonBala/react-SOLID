@@ -57,14 +57,10 @@ const useStreamDetails = (videoId: string) => {
   return videoDetails;
 };
 
-const VideoPreviewImage = ({
-  videoDetails,
-}: {
-  videoDetails: VideoDetails;
-}) => (
+const VideoPreviewImage = ({ previewUrl }: { previewUrl: string }) => (
   <img
     style={{ width: "200px", borderRadius: "10px", border: "1px solid" }}
-    src={videoDetails.previewUrl}
+    src={previewUrl}
     alt="video preview"
   />
 );
@@ -95,7 +91,7 @@ const Loader = () => <span>loading...</span>;
 type VideoPreviewProps<T extends VideoDetails> = {
   videoId: string;
   ImagePreviewComponent?: React.FunctionComponent<{
-    videoDetails: T;
+    previewUrl: string;
   }>;
   DescriptionComponent?: React.FunctionComponent<{
     videoDetails: T;
@@ -115,7 +111,7 @@ const getVideoPreview =
 
     return videoDetails ? (
       <div style={{ display: "flex" }}>
-        <ImagePreviewComponent videoDetails={videoDetails} />
+        <ImagePreviewComponent previewUrl={videoDetails.previewUrl} />
 
         <div style={{ paddingLeft: "10px" }}>
           <DescriptionComponent videoDetails={videoDetails} />
