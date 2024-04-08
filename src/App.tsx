@@ -87,7 +87,7 @@ const StreamDescription = ({ watching, ...rest }: StreamDescriptionProps) => (
 
 const Loader = () => <span>loading...</span>;
 
-type VideoPreviewProps<T extends VideoDetails> = {
+type VideoPreviewTemplateProps<T extends VideoDetails> = {
   videoDetails: T;
   renderImagePreview?: (video: T) => React.ReactElement;
   renderDescription?: (video: T) => React.ReactElement;
@@ -99,7 +99,7 @@ const VideoPreviewTemplate = <T extends VideoDetails>({
     <VideoPreviewImage previewUrl={video.previewUrl} />
   ),
   renderDescription = (video) => <VideoDescription {...video} />,
-}: VideoPreviewProps<T>) => {
+}: VideoPreviewTemplateProps<T>) => {
   return (
     <div style={{ display: "flex" }}>
       {renderImagePreview(videoDetails)}
@@ -111,17 +111,19 @@ const VideoPreviewTemplate = <T extends VideoDetails>({
   );
 };
 
+type SelfLoadingVideoPreviewProps<T extends VideoDetails> = {
+  videoId: string;
+  useVideoDetails: (id: string) => T | undefined;
+  renderVideoPreview?: (video: T) => React.ReactElement;
+  LoaderComponent?: React.FunctionComponent<{}>;
+};
+
 const SelfLoadingVideoPreview = <T extends VideoDetails>({
   videoId,
   useVideoDetails,
   renderVideoPreview = (video) => <VideoPreviewTemplate videoDetails={video} />,
   LoaderComponent = Loader,
-}: {
-  videoId: string;
-  useVideoDetails: (id: string) => T | undefined;
-  renderVideoPreview?: (video: T) => React.ReactElement;
-  LoaderComponent?: React.FunctionComponent<{}>;
-}) => {
+}: SelfLoadingVideoPreviewProps<T>) => {
   const videoDetails = useVideoDetails(videoId);
 
   return videoDetails ? renderVideoPreview(videoDetails) : <LoaderComponent />;
@@ -135,7 +137,6 @@ function App() {
         useVideoDetails={useVideoDetails}
       />
       <br />
-
       <SelfLoadingVideoPreview
         videoId="testStream"
         useVideoDetails={useStreamDetails}
