@@ -129,9 +129,36 @@ const SelfLoadingVideoPreview = <T extends VideoDetails>({
   return videoDetails ? renderVideoPreview(videoDetails) : <LoaderComponent />;
 };
 
+const loadData = () =>
+  Promise.all([loadVideoDetails("video"), loadStreamDetails("stream")]);
+
 function App() {
+  const [videos, setVideos] = useState<VideoDetails[]>([]);
+
+  useEffect(() => {
+    loadData().then((data) => setVideos(data));
+  }, []);
+
   return (
     <div style={{ display: "flex", flexDirection: "column" }}>
+      {videos.map((video) => {
+        if ("watching" in video) {
+          return (
+            <VideoPreviewTemplate
+              key={video.previewUrl}
+              videoDetails={video as StreamDetails}
+              renderDescription={(video) => <StreamDescription {...video} />}
+            />
+          );
+        }
+
+        return (
+          <VideoPreviewTemplate key={video.previewUrl} videoDetails={video} />
+        );
+      })}
+
+      <hr style={{ width: "100%" }} />
+
       <SelfLoadingVideoPreview
         videoId="testVideo"
         useVideoDetails={useVideoDetails}
